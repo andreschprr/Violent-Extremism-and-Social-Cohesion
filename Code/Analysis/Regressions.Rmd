@@ -1,0 +1,274 @@
+---
+title: "Regressions"
+author: "UNDP Team"
+date: "2/25/2020"
+output: pdf_document
+---
+
+```{r libraries, message=FALSE, warning=FALSE, echo=FALSE}
+library(readr)
+library(plm)
+library(dplyr)
+library(ggplot2)
+library(dbplyr)
+library(plm)
+library(tidyverse)
+
+
+```
+
+#Regresions for Events
+
+##VE Events -> VSC
+##Not significant
+
+```{r first_regs, message=FALSE, warning=FALSE, echo=FALSE}
+setwd("~/")
+merged_data <- read_csv("merged_data.csv")
+d1_panel <- pdata.frame(merged_data, index=c("ROUND"))
+model <- plm(Events ~ VSC, data=d1_panel, model="within")
+summary(model)
+d_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+
+
+```
+
+##VE Events -> HSC
+##Not significant
+
+```{r first_regs1, message=FALSE, warning=FALSE, echo=FALSE}
+
+d2_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ HSC, data=d2_panel, model="within")
+summary(model)
+
+```
+
+
+##VE Events -> VSC + HSC
+##Not significant
+
+
+```{r first_regs222, message=FALSE, warning=FALSE, echo=FALSE}
+
+d3_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ VSC + HSC, data=d3_panel, model="within")
+summary(model)
+
+```
+
+##VE Events -> VSC + HSC + VSC*HSC
+##Not significant
+
+
+```{r first_regs2, message=FALSE, warning=FALSE, echo=FALSE}
+
+d33_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ VSC + HSC + VSC*HSC, data=d3_panel, model="within")
+summary(model)
+
+```
+
+
+
+
+##VE Events -> VSC (Civic Activism, Democracy, Political Participation, Unequal Treatment by government, Societal Participation)
+##Negative, statistically significant for Democracy, and almost Societal participation
+
+
+```{r second_regs, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel5 <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ VSC_CA + VSC_DE + VSC_PP + VSC_UG + VSC_SP + HSC_CI + HSC_CS + HSC_IM, data=d_panel, model="within")
+summary(model)
+
+```
+
+
+##VE Events -> HSC (Community Inclusion, Participation in Associations, Inclusion of minorities)
+##Only IM Significant
+
+```{r second_regs1, message=FALSE, warning=FALSE, echo=FALSE}
+
+d_panel4 <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ HSC_CI + HSC_CS + HSC_IM, data=d_panel, model="within")
+summary(model)
+
+```
+
+
+##Based on the results from previous regressions
+
+##VE Events -> VSC (Democracy, Social Participation)
+##Negative, statistically significant for DE
+
+
+```{r third_regs, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel6 <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ VSC_DE + VSC_SP, data=d_panel, model="within")
+summary(model)
+
+```
+
+
+##VE Events -> HSC (Inclusion Minorities)
+##Negative, statistically significant
+
+
+```{r third_regs1, message=FALSE, warning=FALSE, echo=FALSE}
+
+d7_panel <- pdata.frame(merged_data, index=c("ROUND"))
+model4 <- plm(Events ~ HSC_IM, data=d7_panel, model="within")
+summary(model4)
+```
+
+
+##VE Events -> VSC (Democracy), HSC (Inclusion of Minorities)
+##NOT statistically significant, almost
+
+
+```{r fourth_regs1, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel8 <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ VSC_DE + HSC_IM, data=d_panel, model="within")
+summary(model)
+```
+
+
+##VE Events -> VSC (Democracy), HSC (Inclusion of Minorities) with Interaction term
+##Negative, statistically significant for all
+
+
+```{r fourth_regs2, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel8 <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(Events ~ VSC_DE + HSC_IM + VSC_DE * HSC_IM, data=d_panel, model="within")
+summary(model)
+```
+
+#Regressions for Attitudes
+
+##Justification of political violence -> VSC
+##Positive, almost significant
+
+
+```{r fourth_regs3, message=FALSE, warning=FALSE, echo=FALSE}
+
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY", "ROUND"))
+model <- plm(VE3 ~ VSC, data=d_panel, model="within")
+summary(model)
+```
+
+##Justification of political violence -> HSC
+##Not significant
+
+```{r fourth_regs4, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY", "ROUND"))
+model <- plm(VE3 ~ HSC, data=d_panel, model="within")
+summary(model)
+```
+
+
+##Justification of political violence -> VSC_DE (democracy) + VSC_UG (unequal treatment)
+##Democracy Positive, significant
+
+```{r fourth_regs41, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(VE3 ~ VSC_DE + VSC_UG, data=d_panel, model="within")
+summary(model)
+```
+
+
+##Justification of political violence -> VSC_DE
+##Positive, not significant
+
+```{r fourth_regs42, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY", "ROUND"))
+model <- plm(VE3 ~ VSC_DE, data=d_panel, model="within")
+summary(model)
+```
+
+
+
+
+
+##Violence is justified if it is for a just cause
+
+
+##Violence is justified if it is for a just cause -> VSC
+##Negative, almost significant
+
+```{r fourth_regs5, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY", "ROUND"))
+model <- plm(VE4 ~ VSC, data=d_panel, model="within")
+summary(model)
+```
+
+
+##Violence is justified if it is for a just cause -> HSC
+##Not significant
+
+```{r fourth_regs6, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY", "ROUND"))
+model <- plm(VE4 ~ HSC, data=d_panel, model="within")
+summary(model)
+```
+
+
+##Violence is justified if it is for a just cause -> VSC + HSC
+##Not significant
+
+
+```{r fourth_reg72, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY", "ROUND"))
+model <- plm(VE4 ~ HSC+VSC, data=d_panel, model="within")
+summary(model)
+```
+
+##Violence is justified if it is for a just cause -> Political participation, Unequal treatment, Civic Activism and Democracy
+##not significant
+
+
+```{r fourth_reg7214, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(VE4 ~ VSC_CA + VSC_DE + VSC_PP + VSC_UG, data=d_panel, model="within")
+summary(model)
+```
+
+
+##Violence is justified if it is for a just cause -> Political participation, Civic Activism and Democracy
+##almost all significant
+
+
+```{r fourth_reg7213, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(VE4 ~ VSC_CA + VSC_DE + VSC_PP, data=d_panel, model="within")
+summary(model)
+```
+
+##Violence is justified if it is for a just cause -> Political participation and Civic Activism
+##significant
+
+
+```{r fourth_reg7212, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(VE4 ~ VSC_CA + VSC_PP, data=d_panel, model="within")
+summary(model)
+```
+
+##Violence is justified if it is for a just cause -> Community Inclusion, Clubs and Associations
+##Not significant
+
+
+```{r fourth_reg7211, message=FALSE, warning=FALSE, echo=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("ROUND", "COUNTRY"))
+model <- plm(VE4 ~ HSC_CI + HSC_CS, data=d_panel, model="within")
+summary(model)
+```
+
+
+
+
+
+
+
+
+
+
