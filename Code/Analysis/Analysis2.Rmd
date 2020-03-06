@@ -1,0 +1,715 @@
+---
+title: "Final data"
+author: "Policy Lab Team"
+date: "3/4/2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r packages, include=FALSE}
+library(rdd)
+library(ggrepel)
+library(data.table)
+library(broom)
+library(jtools)
+library(huxtable)
+library(readr)
+library(plm)
+library(mosaic)
+library(tidyverse)
+
+datadatacountry <- read_csv("~/Documents/UChicago/5th Quarter/Policy Lab/Final Data/datadatacountry.csv")
+merged_data <- read_csv("~/Documents/UChicago/5th Quarter/Policy Lab/Final Data/merged_data23.csv")
+merged_data22 <- merged_data
+
+```
+
+#1. Intro
+This document reunites most of the analysis that we've done to understand the relationship between VE (Events and Attitudes) and Social Cohesion.
+
+On subsections called country/round we are using a value for each country in each round (so multiple values per country). On subsections called country, we are only using one value per country. If not explicitly mentioned, we are using country/round
+
+Finally, we tried to include description of variables where appropriate but it is a long doc so in case we missed one here is a glossary. Some notation was used for purposes of time saving and its not standardized in all the document so things like political violence refers to VE3, things like just violence refer to VE4. For conclusions we'll be more careful in how we describe these variables
+
+* VE1_all - Perception that the most important issue facing the country is either political violence, discrimination, terrorism, or Boko Haram
+* VE3 - Use force or violence for a political cause
+* VE4 - Whether the use of violence is justified?
+* Events - # of Violent Events (filter by type of event and by actor)
+* HSC - Horizontal Social Cohesion
+* HSC_CI - Community Inclusion (attended meetings, get together with people to raise issues)
+* HSC_CS - Clubs and associations (form part of clubs, religious groups, social groups)
+* HSC_IM - Inclusion of minorities (whether minorities are accepted)
+* VSC - Vertical Social Cohesion
+* VSC_CA - Civic Activism (joining strikes, protests, feeling part of the country)
+* VSC_DE - Democracy (whether they are in a democracy and whether it works)
+* VSC_PP - Political Participation (whether people reach to the government in any way, do they take any actions?)
+* VSC_GQ - Government quality (how good is the government in providing services, confidence in the government)
+* VSC_UG - Unequal treatment by the government (whether people are treated differently)
+
+
+#2. Regressions
+
+## 2a. by Country/Round
+
+## Events
+```{r regressions events CR, include = FALSE,warning=FALSE}
+d_panel <- pdata.frame(merged_data, index=c("COUNTRY","ROUND"))
+CRmodel_1 <- plm(Events ~ VSC, data=d_panel, model="within")
+CRmodel_2 <- plm(Events ~ HSC_new, data=d_panel, model="within")
+CRmodel_3 <- plm(Events ~ VSC + HSC_new, data=d_panel, model="within")
+CRmodel_4 <- plm(Events ~ VSC_CA, data=d_panel, model="within")
+CRmodel_5 <- plm(Events ~ VSC_PP, data=d_panel, model="within")
+CRmodel_6 <- plm(Events ~ VSC_DE, data=d_panel, model="within")
+CRmodel_7 <- plm(Events ~ VSC_UG, data=d_panel, model="within")
+CRmodel_8 <- plm(Events ~ VSC_GQ, data=d_panel, model="within")
+CRmodel_9 <- plm(Events ~ VSC_SP, data=d_panel, model="within")
+CRmodel_10 <- plm(Events ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=d_panel, model="within")
+CRmodel_11 <- plm(Events ~ HSC_CI, data=d_panel, model="within")
+CRmodel_12 <- plm(Events ~ HSC_CS, data=d_panel, model="within")
+CRmodel_13 <- plm(Events ~ HSC_IM, data=d_panel, model="within")
+CRmodel_14 <- plm(Events ~ HSC_CI + HSC_CS + HSC_IM, data=d_panel, model="within")
+
+```
+
+```{r regressions events CR print, echo = FALSE,warning=FALSE}
+export_summs(CRmodel_1, CRmodel_2, CRmodel_3)
+export_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7, CRmodel_8, CRmodel_9, CRmodel_10)
+export_summs(CRmodel_11, CRmodel_12, CRmodel_13, CRmodel_14)
+plot_summs(CRmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_8, CRmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_11, CRmodel_12, CRmodel_13, scale = TRUE, plot.distributions = TRUE)
+```
+
+## VE1_all
+
+```{r regressions VE1_all CR, include = FALSE,warning=FALSE}
+#No relationship, close to negative
+CRmodel_1 <- plm(VE1_all ~ VSC, data=d_panel, model="within")
+CRmodel_2 <- plm(VE1_all ~ HSC_new, data=d_panel, model="within")
+CRmodel_3 <- plm(VE1_all ~ VSC + HSC_new, data=d_panel, model="within")
+CRmodel_4 <- plm(VE1_all ~ VSC_CA, data=d_panel, model="within")
+CRmodel_5 <- plm(VE1_all ~ VSC_PP, data=d_panel, model="within")
+CRmodel_6 <- plm(VE1_all ~ VSC_DE, data=d_panel, model="within")
+CRmodel_7 <- plm(VE1_all ~ VSC_UG, data=d_panel, model="within")
+CRmodel_8 <- plm(VE1_all ~ VSC_GQ, data=d_panel, model="within")
+CRmodel_9 <- plm(VE1_all ~ VSC_SP, data=d_panel, model="within")
+CRmodel_10 <- plm(VE1_all ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=d_panel, model="within")
+CRmodel_11 <- plm(VE1_all ~ HSC_CI, data=d_panel, model="within")
+CRmodel_12 <- plm(VE1_all ~ HSC_CS, data=d_panel, model="within")
+CRmodel_13 <- plm(VE1_all ~ HSC_IM, data=d_panel, model="within")
+CRmodel_14 <- plm(VE1_all ~ HSC_CI + HSC_CS + HSC_IM, data=d_panel, model="within")
+
+```
+
+```{r regressions VE1_all CR print, echo = FALSE,warning=FALSE}
+export_summs(CRmodel_1, CRmodel_2, CRmodel_3)
+export_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7, CRmodel_8, CRmodel_9, CRmodel_10)
+export_summs(CRmodel_11, CRmodel_12, CRmodel_13, CRmodel_14)
+
+plot_summs(CRmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7, CRmodel_8, CRmodel_9, scale = TRUE, plot.distributions = TRUE)
+
+plot_summs(CRmodel_11, CRmodel_12, CRmodel_13, scale = TRUE, plot.distributions = TRUE)
+
+```
+
+## VE3
+
+```{r regressions VE3 CR, include = FALSE,warning=FALSE}
+#No relationship, close to negative
+CRmodel_1 <- plm(VE3_new ~ VSC, data=d_panel, model="within")
+CRmodel_2 <- plm(VE3_new ~ HSC_new, data=d_panel, model="within")
+CRmodel_3 <- plm(VE3_new ~ VSC + HSC_new, data=d_panel, model="within")
+CRmodel_4 <- plm(VE3_new ~ VSC_CA, data=d_panel, model="within")
+CRmodel_5 <- plm(VE3_new ~ VSC_PP, data=d_panel, model="within")
+CRmodel_6 <- plm(VE3_new ~ VSC_DE, data=d_panel, model="within")
+CRmodel_7 <- plm(VE3_new ~ VSC_UG, data=d_panel, model="within")
+CRmodel_8 <- plm(VE3_new ~ VSC_GQ, data=d_panel, model="within")
+#CRmodel_9 <- plm(VE3_new ~ VSC_SP, data=d_panel, model="within")
+#CRmodel_10 <- plm(VE3_new ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=d_panel, model="within")
+CRmodel_10a <- plm(VE3_new ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ, data=d_panel, model="within")
+CRmodel_11 <- plm(VE3_new ~ HSC_CI, data=d_panel, model="within")
+CRmodel_12 <- plm(VE3_new ~ HSC_CS, data=d_panel, model="within")
+#CRmodel_13 <- plm(VE3_new ~ HSC_IM, data=d_panel, model="within")
+CRmodel_14 <- plm(VE3_new ~ HSC_CI + HSC_CS, data=d_panel, model="within")
+
+```
+
+```{r regressions VE3 CR print, echo = FALSE,warning=FALSE}
+export_summs(CRmodel_1, CRmodel_2, CRmodel_3)
+export_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7, CRmodel_8, CRmodel_10a)
+export_summs(CRmodel_11, CRmodel_12, CRmodel_14)
+
+plot_summs(CRmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7,CRmodel_8, CRmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_11, CRmodel_12, CRmodel_13, scale = TRUE, plot.distributions = TRUE)
+
+```
+
+## VE4
+
+```{r regressions VE4 CR, include = FALSE,warning=FALSE}
+CRmodel_1 <- plm(VE4_new ~ VSC, data=d_panel, model="within")
+CRmodel_2 <- plm(VE4_new ~ HSC_new, data=d_panel, model="within")
+CRmodel_3 <- plm(VE4_new ~ VSC + HSC_new, data=d_panel, model="within")
+CRmodel_4 <- plm(VE4_new ~ VSC_CA, data=d_panel, model="within")
+CRmodel_5 <- plm(VE4_new ~ VSC_PP, data=d_panel, model="within")
+CRmodel_6 <- plm(VE4_new ~ VSC_DE, data=d_panel, model="within")
+CRmodel_7 <- plm(VE4_new ~ VSC_UG, data=d_panel, model="within")
+CRmodel_8 <- plm(VE4_new ~ VSC_GQ, data=d_panel, model="within")
+CRmodel_9 <- plm(VE4_new ~ VSC_SP, data=d_panel, model="within")
+CRmodel_10 <- plm(VE4_new ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=d_panel, model="within")
+CRmodel_11 <- plm(VE4_new ~ HSC_CI, data=d_panel, model="within")
+CRmodel_12 <- plm(VE4_new ~ HSC_CS, data=d_panel, model="within")
+#CRmodel_13 <- plm(VE4_new ~ HSC_IM, data=d_panel, model="within")
+CRmodel_14 <- plm(VE4_new ~ HSC_CI + HSC_CS, data=d_panel, model="within")
+
+```
+
+```{r regressions VE4 CR print, echo = FALSE,warning=FALSE}
+export_summs(CRmodel_1, CRmodel_2, CRmodel_3)
+export_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7, CRmodel_8, CRmodel_9, CRmodel_10)
+export_summs(CRmodel_11, CRmodel_12, CRmodel_14)
+
+plot_summs(CRmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_4, CRmodel_5, CRmodel_6, CRmodel_7, CRmodel_8, CRmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(CRmodel_11, CRmodel_12, CRmodel_13, scale = TRUE, plot.distributions = TRUE)
+```
+
+## 2b. by Country
+
+## Events
+
+```{r regressions events C, include = FALSE,warning=FALSE}
+Cmodel_1 <- lm(Events ~ VSC, data=datadatacountry)
+Cmodel_2 <- lm(Events ~ HSC_new, data=datadatacountry)
+Cmodel_3 <- lm(Events ~ VSC + HSC_new, data=datadatacountry)
+Cmodel_4 <- lm(Events ~ VSC_CA, data=datadatacountry)
+Cmodel_5 <- lm(Events ~ VSC_PP, data=datadatacountry)
+Cmodel_6 <- lm(Events ~ VSC_DE, data=datadatacountry)
+Cmodel_7 <- lm(Events ~ VSC_UG, data=datadatacountry)
+Cmodel_8 <- lm(Events ~ VSC_GQ, data=datadatacountry)
+Cmodel_9 <- lm(Events ~ VSC_SP, data=datadatacountry)
+Cmodel_10 <- lm(Events ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=datadatacountry)
+Cmodel_11 <- lm(Events ~ HSC_CI, data=datadatacountry)
+Cmodel_12 <- lm(Events ~ HSC_CS, data=datadatacountry)
+Cmodel_13 <- lm(Events ~ HSC_IM, data=datadatacountry)
+Cmodel_14 <- lm(Events ~ HSC_CI + HSC_CS + HSC_IM, data=datadatacountry)
+
+```
+
+```{r regressions events C print, echo = FALSE,warning=FALSE}
+export_summs(Cmodel_1, Cmodel_2, Cmodel_3, error_format = "({statistic}, p = {p.value})")
+export_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, Cmodel_10)
+export_summs(Cmodel_11, Cmodel_12, Cmodel_13, Cmodel_14, error_format = "({statistic}, p = {p.value})")
+
+plot_summs(Cmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_11, Cmodel_12, Cmodel_13, scale = TRUE, plot.distributions = TRUE)
+
+effect_plot(Cmodel_3, pred = HSC_new, interval = TRUE, plot.points = TRUE)
+effect_plot(Cmodel_3, pred = VSC, interval = TRUE, plot.points = TRUE)
+
+```
+
+## VE1_all
+
+
+```{r regressions VE1_all C, include = FALSE,warning=FALSE}
+Cmodel_1 <- lm(VE1_all ~ VSC, data=datadatacountry)
+Cmodel_2 <- lm(VE1_all ~ HSC_new, data=datadatacountry)
+Cmodel_3 <- lm(VE1_all ~ VSC + HSC_new, data=datadatacountry)
+Cmodel_4 <- lm(VE1_all ~ VSC_CA, data=datadatacountry)
+Cmodel_5 <- lm(VE1_all ~ VSC_PP, data=datadatacountry)
+Cmodel_6 <- lm(VE1_all ~ VSC_DE, data=datadatacountry)
+Cmodel_7 <- lm(VE1_all ~ VSC_UG, data=datadatacountry)
+Cmodel_8 <- lm(VE1_all ~ VSC_GQ, data=datadatacountry)
+Cmodel_9 <- lm(VE1_all ~ VSC_SP, data=datadatacountry)
+Cmodel_10 <- lm(VE1_all ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=datadatacountry)
+Cmodel_11 <- lm(VE1_all ~ HSC_CI, data=datadatacountry)
+Cmodel_12 <- lm(VE1_all ~ HSC_CS, data=datadatacountry)
+Cmodel_13 <- lm(VE1_all ~ HSC_IM, data=datadatacountry)
+Cmodel_14 <- lm(VE1_all ~ HSC_CI + HSC_CS + HSC_IM, data=datadatacountry)
+
+```
+
+```{r regressions VE1_all C print, echo = FALSE,warning=FALSE}
+export_summs(Cmodel_1, Cmodel_2, Cmodel_3, error_format = "({statistic}, p = {p.value})")
+export_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, Cmodel_10)
+export_summs(Cmodel_11, Cmodel_12, Cmodel_13, Cmodel_14, error_format = "({statistic}, p = {p.value})")
+
+plot_summs(Cmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_11, Cmodel_12, Cmodel_13, scale = TRUE, plot.distributions = TRUE)
+
+effect_plot(Cmodel_3, pred = HSC_new, interval = TRUE, plot.points = TRUE)
+effect_plot(Cmodel_3, pred = VSC, interval = TRUE, plot.points = TRUE)
+```
+
+
+## VE3
+
+```{r regressions VE3 C, include = FALSE,warning=FALSE}
+Cmodel_1 <- lm(VE3_new ~ VSC, data=datadatacountry)
+Cmodel_2 <- lm(VE3_new ~ HSC_new, data=datadatacountry)
+Cmodel_3 <- lm(VE3_new ~ VSC + HSC_new, data=datadatacountry)
+Cmodel_4 <- lm(VE3_new ~ VSC_CA, data=datadatacountry)
+Cmodel_5 <- lm(VE3_new ~ VSC_PP, data=datadatacountry)
+Cmodel_6 <- lm(VE3_new ~ VSC_DE, data=datadatacountry)
+Cmodel_7 <- lm(VE3_new ~ VSC_UG, data=datadatacountry)
+Cmodel_8 <- lm(VE3_new ~ VSC_GQ, data=datadatacountry)
+Cmodel_9 <- lm(VE3_new ~ VSC_SP, data=datadatacountry)
+Cmodel_10 <- lm(VE3_new ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=datadatacountry)
+Cmodel_11 <- lm(VE3_new ~ HSC_CI, data=datadatacountry)
+Cmodel_12 <- lm(VE3_new ~ HSC_CS, data=datadatacountry)
+Cmodel_13 <- lm(VE3_new ~ HSC_IM, data=datadatacountry)
+Cmodel_14 <- lm(VE3_new ~ HSC_CI + HSC_CS, data=datadatacountry)
+
+```
+
+```{r regressions VE3 C print, echo = FALSE,warning=FALSE}
+export_summs(Cmodel_1, Cmodel_2, Cmodel_3, error_format = "({statistic}, p = {p.value})")
+export_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, Cmodel_10)
+export_summs(Cmodel_11, Cmodel_12, Cmodel_14, error_format = "({statistic}, p = {p.value})")
+
+plot_summs(Cmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_11, Cmodel_12, Cmodel_13, scale = TRUE, plot.distributions = TRUE)
+
+
+effect_plot(Cmodel_3, pred = HSC_new, interval = TRUE, plot.points = TRUE)
+effect_plot(Cmodel_3, pred = VSC, interval = TRUE, plot.points = TRUE)
+```
+
+## VE4
+
+```{r regressions VE4 C, include = FALSE,warning=FALSE}
+Cmodel_1 <- lm(VE4_new ~ VSC, data=datadatacountry)
+Cmodel_2 <- lm(VE4_new ~ HSC_new, data=datadatacountry)
+Cmodel_3 <- lm(VE4_new ~ VSC + HSC_new, data=datadatacountry)
+Cmodel_4 <- lm(VE4_new ~ VSC_CA, data=datadatacountry)
+Cmodel_5 <- lm(VE4_new ~ VSC_PP, data=datadatacountry)
+Cmodel_6 <- lm(VE4_new ~ VSC_DE, data=datadatacountry)
+Cmodel_7 <- lm(VE4_new ~ VSC_UG, data=datadatacountry)
+Cmodel_8 <- lm(VE4_new ~ VSC_GQ, data=datadatacountry)
+Cmodel_9 <- lm(VE4_new ~ VSC_SP, data=datadatacountry)
+Cmodel_10 <- lm(VE4_new ~ VSC_CA + VSC_PP + VSC_DE + VSC_UG + VSC_GQ + VSC_SP, data=datadatacountry)
+Cmodel_11 <- lm(VE4_new ~ HSC_CI, data=datadatacountry)
+Cmodel_12 <- lm(VE4_new ~ HSC_CS, data=datadatacountry)
+Cmodel_13 <- lm(VE4_new ~ HSC_IM, data=datadatacountry)
+Cmodel_14 <- lm(VE4_new ~ HSC_CI + HSC_CS + HSC_IM, data=datadatacountry)
+
+```
+
+```{r regressions VE4 C print, echo = FALSE,warning=FALSE}
+export_summs(Cmodel_1, Cmodel_2, Cmodel_3, error_format = "({statistic}, p = {p.value})")
+export_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, Cmodel_10)
+export_summs(Cmodel_11, Cmodel_12, Cmodel_13, Cmodel_14, error_format = "({statistic}, p = {p.value})")
+
+plot_summs(Cmodel_3, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_4, Cmodel_5, Cmodel_6, Cmodel_7, Cmodel_8, Cmodel_9, scale = TRUE, plot.distributions = TRUE)
+plot_summs(Cmodel_11, Cmodel_12, Cmodel_13, scale = TRUE, plot.distributions = TRUE)
+
+
+effect_plot(Cmodel_3, pred = HSC_new, interval = TRUE, plot.points = TRUE)
+effect_plot(Cmodel_3, pred = VSC, interval = TRUE, plot.points = TRUE)
+```
+
+
+# 3. T-tests
+
+
+```{r t tests CR, include=FALSE,warning=FALSE}
+
+##T-tests
+merged_data <- merged_data22
+
+lapply(merged_data[,c("HSC_new", "HSC_CI", "HSC_CS","HSC_IM")], function(x) t.test(x ~ merged_data$VE_COUNTRY, var.equal = TRUE))
+lapply(merged_data[,c("VSC", "VSC_CA", "VSC_DE","VSC_PP","VSC_GQ","VSC_UG","VSC_SP")], function(x) t.test(x ~ merged_data$VE_COUNTRY, var.equal = TRUE))
+lapply(merged_data[,c("VE3_new","VE4_new")], function(x) t.test(x ~ merged_data$VE_COUNTRY, var.equal = TRUE))
+
+merged_data_t <- merged_data %>%
+  filter(COUNTRY != "Sudan")
+t.test(Events ~ VE_COUNTRY,
+       data = merged_data_t, paried = FALSE)
+
+# HSC
+HSC <- t.test(HSC_new ~ VE_COUNTRY,
+              data = merged_data_t, paired = FALSE)
+CI <- t.test(HSC_CI ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+CS <- t.test(HSC_CS ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+IM <- t.test(HSC_IM ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+
+
+Index <- c("HSC", "HSC_CI", "HSC_CS", "HSC_IM")
+statistic <- c(HSC$statistic, CI$statistic, CS$statistic, IM$statistic)
+statistic <- round(statistic,2)
+P_value <- c(HSC$p.value, CI$p.value, CS$p.value, IM$p.value)
+P_value <- round(P_value,2)
+Method <- c(HSC$method, CI$method, CS$method, IM$method)
+Variables <- cbind(Indicator = Index, statistic, P_value, Method)
+
+
+
+# VSC
+VSC <- t.test(VSC ~ VE_COUNTRY,
+              data = merged_data_t, paired = FALSE)
+CA <- t.test(VSC_CA ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+DE <- t.test(VSC_DE ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+PP <- t.test(VSC_PP ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+GQ <- t.test(VSC_GQ ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+UG <- t.test(VSC_UG ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+SP <- t.test(VSC_SP ~ VE_COUNTRY,
+             data = merged_data_t, paired = FALSE)
+
+Index1 <- c("VSC", "VSC_CA", "VSC_DE", "VSC_PP", "VSC_GQ", "VSC_UG","VSC_SP")
+statistic1 <- c(VSC$statistic, CA$statistic, DE$statistic, PP$statistic, GQ$statistic, UG$statistic, SP$statistic)
+statistic1 <- round(statistic1,2)
+P_value1 <- c(VSC$p.value, CA$p.value, DE$p.value, PP$p.value, GQ$p.value, UG$p.value, SP$p.value)
+P_value1 <- round(P_value1,2)
+Method1 <- c(VSC$method, CA$method, DE$method, PP$method, GQ$method, UG$method, SP$method)
+
+Variables1 <- cbind(Indicator = Index1, statistic1, P_value1, Method1)
+
+```
+
+```{r ttest 1 print, echo = FALSE,warning=FALSE}
+print(Variables)
+print(Variables1)
+```
+
+
+# 4. Cumulative distribution plots
+
+Using cumulative distribution plots can yield insight into why some means are not different between VE and NonVE countries.
+Although in some cases there is no difference in means, the distribution itself is very different.
+
+## Horizontal Social Cohesion difference between groups
+
+```{r Cumulative distribution plots 1 CR, echo=FALSE,warning=FALSE}
+
+plot(ecdf(merged_data[merged_data22$VE_COUNTRY==1,]$HSC_new), cex = 0.8, col = (values = "#32CD32"),
+     xlab="Horizontal Social Cohesion",
+     ylab="Cumulative Proportion",
+     main="Distribution of Horizontal Social Cohesion")
+lines(ecdf(merged_data[merged_data22$VE_COUNTRY==0,]$HSC_new),
+      col= (values = "#8B008B"),  cex = 0.8)
+legend('bottomright', 
+       legend=c("VE","NonVE"),
+       col=c("#32CD32","#8B008B"),
+       pch=15)
+```
+
+## Inclusion of Minorities, VE4, and VE1_all difference between groups
+
+
+```{r Cumulative distribution plots 2 CR, echo=FALSE}
+
+plot(ecdf(merged_data[merged_data22$VE_COUNTRY==1,]$HSC_IM), cex = 0.8, col = (values = "#32CD32"),
+     xlab="Inclusion of Minorities (HSC)",
+     ylab="Cumulative Proportion",
+     main="Distribution of Inclusion of Minorities Index")
+lines(ecdf(merged_data[merged_data22$VE_COUNTRY==0,]$HSC_IM),
+      col= (values = "#8B008B"),  cex = 0.8)
+legend('bottomright', 
+       legend=c("VE","NonVE"),
+       col=c("#32CD32","#8B008B"),
+       pch=15)
+
+plot(ecdf(merged_data[merged_data22$VE_COUNTRY==1,]$VE4_new), cex = 0.8, col = (values = "#32CD32"),
+     xlab="violence for a just cause ",
+     ylab="Cumulative Proportion",
+     main="Distribution of violence for a just cause indicator")
+lines(ecdf(merged_data[merged_data22$VE_COUNTRY==0,]$VE4_new),
+      col= (values = "#8B008B"),  cex = 0.8)
+legend('bottomright', 
+       legend=c("VE","NonVE"),
+       col=c("#32CD32","#8B008B"),
+       pch=15)
+
+plot(ecdf(merged_data[merged_data22$VE_COUNTRY==1,]$VE1_all), cex = 0.8, col = (values = "#32CD32"),
+     xlab="Perception of threat of violence",
+     ylab="Cumulative Proportion",
+     main="Distribution of Perception of threat of violence (political, terrorism)")
+lines(ecdf(merged_data[merged_data22$VE_COUNTRY==0,]$VE1_all),
+      col= (values = "#8B008B"),  cex = 0.8)
+legend('bottomright', 
+       legend=c("VE","NonVE"),
+       col=c("#32CD32","#8B008B"),
+       pch=15)
+
+```
+
+
+## Difference between VE3 and VE4
+
+
+```{r Cumulative distribution plots 3 CR, echo=FALSE,warning=FALSE}
+
+plot(ecdf(merged_data22$VE3_new), cex = 0.8, col = (values = "#5e6fe6"),
+     xlab="Acceptance of violence",
+     ylab="Cumulative Proportion",
+     main="Distribution of acceptance of violence")
+lines(ecdf(merged_data22$VE4_new),
+      col= (values = "#66cdaa"),  cex = 0.8)
+legend('bottomright', 
+       legend=c("Political cause","Just cause"),
+       col=c("#5e6fe6","#66cdaa"),
+       pch=15)
+
+```
+
+
+# 5. Quadrants
+
+
+By looking at the quadrants it feels clear that is incorrect in thinking that will find the lowest levels of social cohesion on VE countries. But it appears that there is a ceiling of social cohesion that can be achieved under violent circumstances
+
+
+### 5a. By Country/Round
+
+```{r Quadrants CR, echo=FALSE,warning=FALSE}
+##Quadrants
+
+matrix1 <- merged_data
+vars <- c("COUNTRY", "ROUND", HSC = "HSC_new", "VSC")
+matrix2_SC <- select(matrix1, vars)
+matrix2_SC$is_VE <- ifelse(matrix2_SC$COUNTRY %in% c("Cameroon", "Kenya", "Mali", "Mozambique","Niger","Nigeria","Sudan","Tanzania","Uganda"), "VE","non-VE")
+
+#plot 'quadrants' of SC by country
+ggplot(matrix2_SC, aes(VSC, HSC,
+                      label = COUNTRY, 
+                      color = factor(is_VE))) +
+  ggtitle("Countries by High/Low Social Cohesion") +
+  theme(legend.title = element_blank()) +
+  geom_jitter() + 
+  #geom_text_repel() + 
+  theme_classic() +
+  scale_color_discrete(name="COUNTRY") + 
+  scale_color_manual(values =c("#32CD32","#8B008B")) +
+  xlim(0.3,0.7) + ylim(0.3,0.7) +
+  geom_vline(xintercept = 0.5, linetype = 3)+
+  geom_hline(yintercept = 0.5, linetype = 3) +
+  annotate("text", label= "LOW, HIGH", x=0.4, y=0.65, size=3) +
+  annotate("text", label= "LOW, LOW", x=0.35, y=0.3, size=3) +
+  annotate("text", label= "HIGH, HIGH", x=0.6, y=0.65, size=3) +
+  annotate("text", label= "HIGH, LOW", x=0.6, y=0.3, size=3)
+
+
+#repeat graph with just VE countries
+ggplot(subset(matrix2_SC, COUNTRY %in% c("Cameroon", "Kenya", "Mali", "Mozambique","Niger","Nigeria","Sudan","Tanzania","Uganda")), 
+       aes(VSC, HSC, label = COUNTRY)) +
+  ggtitle("VE Countries by High/Low Social Cohesion") +
+  geom_jitter() + 
+  geom_text_repel() + 
+  xlim(0.3,0.7) + ylim(0.3,0.7) +
+  geom_vline(xintercept = 0.5, linetype = 3)+
+  geom_hline(yintercept = 0.5, linetype = 3) +
+  annotate("text", label= "LOW, HIGH", x=0.4, y=0.65, size=3) +
+  annotate("text", label= "LOW, LOW", x=0.35, y=0.3, size=3) +
+  annotate("text", label= "HIGH, HIGH", x=0.6, y=0.65, size=3) +
+  annotate("text", label= "HIGH, LOW", x=0.6, y=0.3, size=3)
+
+ggplot(subset(matrix2_SC, COUNTRY %in% c("Cameroon", "Kenya", "Mali", "Mozambique","Niger","Nigeria","Sudan","Tanzania","Uganda")), 
+       aes(VSC, HSC, label = COUNTRY)) +
+  ggtitle("VE Countries by High/Low Social Cohesion") +
+  geom_jitter() + 
+  #geom_text_repel() + 
+  xlim(0.3,0.7) + ylim(0.3,0.7) +
+  geom_vline(xintercept = 0.5, linetype = 3)+
+  geom_hline(yintercept = 0.5, linetype = 3) +
+  annotate("text", label= "LOW, HIGH", x=0.4, y=0.65, size=3) +
+  annotate("text", label= "LOW, LOW", x=0.35, y=0.3, size=3) +
+  annotate("text", label= "HIGH, HIGH", x=0.6, y=0.65, size=3) +
+  annotate("text", label= "HIGH, LOW", x=0.6, y=0.3, size=3)
+```
+
+
+## 5b. By Country
+
+
+```{r Quadrants C, echo=FALSE,warning=FALSE}
+#Quadrants
+
+matrix1 <- merged_data
+
+matrix_VSC <- as.data.table(matrix1)[, mean(VSC), by = .(COUNTRY)]
+colnames(matrix_VSC)[2] <- "VSC"
+matrix_HSC <- as.data.table(matrix1)[, mean(HSC_new), by = .(COUNTRY)]
+colnames(matrix_HSC)[2] <- "HSC"
+matrix_SC <- cbind(matrix_HSC,matrix_VSC[,2])
+
+#Identify VE and non-VE countries
+matrix_SC$is_VE <- ifelse(matrix_SC$COUNTRY %in% c("Cameroon", "Kenya", "Mali", "Mozambique","Niger","Nigeria","Sudan","Tanzania","Uganda"), "VE","non-VE")
+
+#plot 'quadrants' of SC by country
+ggplot(matrix_SC, aes(VSC, HSC,
+                      label = COUNTRY, 
+                      color = factor(is_VE))) +
+  ggtitle("Countries by High/Low Social Cohesion") +
+  theme(legend.title = element_blank()) +
+  geom_jitter() + 
+  geom_text_repel() + 
+  theme_classic() +
+  scale_color_discrete(name="COUNTRY") + 
+  scale_color_manual(values =c("#32CD32","#8B008B")) +
+  xlim(0.3,0.7) + ylim(0.3,0.7) +
+  geom_vline(xintercept = 0.5, linetype = 3)+
+  geom_hline(yintercept = 0.5, linetype = 3) +
+  annotate("text", label= "LOW, HIGH", x=0.4, y=0.65, size=3) +
+  annotate("text", label= "LOW, LOW", x=0.35, y=0.3, size=3) +
+  annotate("text", label= "HIGH, HIGH", x=0.6, y=0.65, size=3) +
+  annotate("text", label= "HIGH, LOW", x=0.6, y=0.3, size=3)
+
+
+#repeat graph with just VE countries
+ggplot(subset(matrix_SC, COUNTRY %in% c("Cameroon", "Kenya", "Mali", "Mozambique","Niger","Nigeria","Sudan","Tanzania","Uganda")), 
+       aes(VSC, HSC, label = COUNTRY)) +
+  ggtitle("VE Countries by High/Low Social Cohesion") +
+  geom_jitter() + geom_text_repel() + 
+  xlim(0.3,0.7) + ylim(0.3,0.7) +
+  geom_vline(xintercept = 0.5, linetype = 3)+
+  geom_hline(yintercept = 0.5, linetype = 3) +
+  annotate("text", label= "LOW, HIGH", x=0.4, y=0.65, size=3) +
+  annotate("text", label= "LOW, LOW", x=0.35, y=0.3, size=3) +
+  annotate("text", label= "HIGH, HIGH", x=0.6, y=0.65, size=3) +
+  annotate("text", label= "HIGH, LOW", x=0.6, y=0.3, size=3)
+```
+
+# 6. Regression Discontinuity Design
+
+From looking at the Quadrants it becomes interesting that instead of seeing some clear linear relationship between Social Cohesion and VE Events, we see something more resembling an upper limit, which most of the VE countries don't cross. To understand this incident better, we modeled the problem as a Regression Discontinuity Design.
+
+Theoretically the idea could works as follows. A person is deciding whether to commit violence as revenge on a criminal or let the justice system do its work. This person will have a threshold of how much does they need to trust the system to reject the idea of taking things into their own hands. If a reform happens and they start trusting the system more, this would be a jump in the Social Cohesion index, but won't be reflected in the VE Events unless the increase in SC is sufficient enough to reach the threshold of this person.
+
+So in this scenario there would be a threshold of Social Cohesion where most of the people decide to trust the system. A bit less SC than that is going to be reflected with a high number of VE Events. A higher SC than the threshold will be reflected with a considerably lower number of VE Events. 
+
+The following two regressions test this theory both for Vertical Social Cohesion and Horizontal Social Cohesion.
+
+## Vertical Social Cohesion RDD
+
+The RDD is significant when we use 0.44 as the threshold for VSC with a bandwidth of 0.039, 0.013 and 0.007. The bandwidth is calculated with the Imbens-Kalyanaraman method that R traditionally uses
+
+```{r VSC RDD CR, echo=FALSE,warning=FALSE}
+RDDEvents_VSC <- RDestimate(Events ~ VSC, data = merged_data, cutpoint = 0.44)
+summary(RDDEvents_VSC)
+plot(RDDEvents_VSC)
+
+```
+
+## Horizontal Social Cohesion RDD
+
+The RDD is significant when we use 0.4 as the threshold for HSC with a bandwidth of 0.1 and 0.05. The bandwidth is calculated with the Imbens-Kalyanaraman method that R traditionally uses
+
+```{r HSC RDD CR, echo=FALSE,warning=FALSE}
+RDDEvents_HSC <- RDestimate(Events ~ HSC_new, data = merged_data, cutpoint = 0.4)
+summary(RDDEvents_HSC)
+plot(RDDEvents_HSC)
+
+```
+
+
+
+# 7. Plots of relationships
+
+## 7a. By Country/Region
+
+## Vertical Social Cohesion
+
+```{r VSC plots CR, echo=FALSE,warning=FALSE}
+
+plotVSC_Events <- ggplot(aes(x = VSC, y = Events), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSC_Events + labs( title= "Violent Events and Vertical Social Cohesion", y="VE Events", x = "Vertical Social Cohesion Index"))
+
+
+plotVSC_Attitudes1 <- ggplot(aes(x = VSC, y = VE1_all), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSC_Attitudes1 + labs( title= "Perception of VE and Vertical Social Cohesion", y="(%) Is terrorism/discrimination/PV the main problem?", x = "Vertical Social Cohesion Index"))
+
+
+plotVSC_Attitudes3 <- ggplot(aes(x = VSC, y = VE3_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSC_Attitudes3 + labs( title= "VE3 and Vertical Social Cohesion", y="(%) Is violence justified if its for a political cause?", x = "Vertical Social Cohesion Index"))
+
+
+plotVSC_Attitudes4 <- ggplot(aes(x = VSC, y = VE4_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSC_Attitudes4 + labs( title= "VE4 and Vertical Social Cohesion", y="(%) Is violence justified if its for a just cause?", x = "Vertical Social Cohesion Index"))
+
+
+```
+
+## Vertical Social Cohesion Subindices
+## Political violence, Civic Activism, Social Participation
+
+
+```{r VSC Sub plots CR, echo=FALSE,warning=FALSE}
+plotVSCPP_Events <- ggplot(aes(x = VSC_PP, y = Events), data = merged_data) + geom_point(col="grey30") + geom_lm(col="red2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSCPP_Events + labs( title= "V.E. Events and Political Participation (VSC)", y="# of Violent Extremist Events", x = "Political Participation Index"))
+
+plotVSCPP_Attitudes1 <- ggplot(aes(x = VSC_PP, y = VE1_all), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSCPP_Attitudes1 + labs( title= "Perception of VE and Social Participation", y="(%) Is terrorism/discrimination/PV the main problem?", x = "Social Participation Index"))
+
+
+plotVSCSP_VE3 <- ggplot(aes(x = VSC_PP, y = VE3_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="red2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSCSP_VE3 + labs( title= "VE3 and Social Participation (VSC)", y="(%) Is violence justified if its for a political cause?", x = "Social Participation Index"))
+
+
+plotVSCPP_VE3 <- ggplot(aes(x = VSC_PP, y = VE3_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="red2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSCPP_VE3 + labs( title= "VE3 and Political Participation (VSC)", y="(%) Is violence justified if its for a political cause?", x = "Political Participation Index"))
+
+
+plotVSCUG_VE4 <- ggplot(aes(x = VSC_PP, y = VE4_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="red2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSCUG_VE4 + labs( title= "VE4 and Political Participation (VSC)", y="(%) Is violence justified if its for a just cause?", x = "Political Participation Index"))
+
+
+plotVSCCA_VE4 <- ggplot(aes(x = VSC_PP, y = VE4_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="red2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotVSCCA_VE4 + labs( title= "VE4 and Political Participation (VSC)", y="(%) Is violence justified if its for a just cause?", x = "Political Participation Index"))
+
+```
+
+## Horizontal Social Cohesion
+
+```{r HSC plots CR, echo=FALSE,warning=FALSE}
+
+plotHSC_Events <- ggplot(aes(x = HSC_new, y = Events), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSC_Events + labs( title= "Violent Events and Horizontal Social Cohesion", y="VE Events", x = "Horizontal Social Cohesion Index"))
+
+
+plotHSC_Attitudes1 <- ggplot(aes(x = HSC_new, y = VE1_all), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSC_Attitudes1 + labs( title= "Perception of VE and Horizontal Social Cohesion", y="(%) Is terrorism/discrimination/PV the main problem?", x = "Horizontal Social Cohesion Index"))
+
+
+plotHSC_Attitudes3 <- ggplot(aes(x = HSC_new, y = VE3_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSC_Attitudes3 + labs( title= "VE3 and Horizontal Social Cohesion", y="(%) Is violence justified if its for a political cause?", x = "Horizontal Social Cohesion Index"))
+
+
+plotHSC_Attitudes4 <- ggplot(aes(x = HSC_new, y = VE4_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSC_Attitudes4 + labs( title= "VE4 and Horizontal Social Cohesion", y="(%) Is violence justified if its for a just cause?", x = "Horizontal Social Cohesion Index"))
+
+
+```
+
+## Horizontal Social Cohesion Subindices
+## Clubs and Associations and Community Inclusion
+
+```{r HSC Sub plots CR, echo=FALSE,warning=FALSE}
+
+plotHSCCS_Events <- ggplot(aes(x = HSC_CS, y = Events), data = merged_data) + geom_point(col="grey30") + geom_lm(col="red2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSCCS_Events + labs( title= "V.E. Events and Clubs and Associations (HSC)", y="# of Violent Extremist Events", x = "Clubs and Associations Index"))
+
+plotHSCCS_Attitudes1 <- ggplot(aes(x = HSC_CS, y = VE1_all), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSCCS_Attitudes1 + labs( title= "Perception of VE and Clubs and Associations (HSC)", y="(%) Is terrorism/discrimination/PV the main problem?", x = "Clubs and Associations Index"))
+
+plotHSCCI_Attitudes3 <- ggplot(aes(x = HSC_CI, y = VE3_new), data = merged_data) + geom_point(col="grey30") + geom_lm(col="firebrick2", linetype = "dashed") + theme(plot.title = element_text(size=13))
+print(plotHSCCI_Attitudes3 + labs( title= "VE3 and Community Inclusion (HSC)", y="(%) Is violence justified if its for a political cause?", x = "Community Inclusion Index"))
+
+```
+
